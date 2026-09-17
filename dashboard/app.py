@@ -33,8 +33,8 @@ NOCVISION_CSS = """
     --panel:         #0D1F3C;
     --panel2:        #112444;
     --border:        #1B3A5C;
-    --text:          #E8EDF5;
-    --text-dim:      #B8D4F0;
+    --text:          #FFFFFF;
+    --text-dim:      #C8DCF0;
     --font:          'Inter', sans-serif;
     --mono:          'JetBrains Mono', monospace;
 }
@@ -92,7 +92,7 @@ html, body, [class*="css"] {
 }
 .stTabs [data-baseweb="tab"] {
     background: transparent !important;
-    color: var(--text-dim) !important;
+    color: #FFFFFF !important;
     font-size: 12px !important;
     font-weight: 500 !important;
     letter-spacing: 0.06em !important;
@@ -213,10 +213,24 @@ html, body, [class*="css"] {
 
 /* Selectbox / inputs */
 .stSelectbox > div > div {
-    background: var(--panel) !important;
-    border: 1px solid var(--border) !important;
-    color: var(--text) !important;
+    background: #112444 !important;
+    border: 1px solid #00A3E0 !important;
+    color: #FFFFFF !important;
     border-radius: 2px !important;
+}
+.stSelectbox label, .stSlider label, .stSelectbox p {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+}
+label, p, span, div {
+    color: #FFFFFF !important;
+}
+.stSelectbox [data-baseweb="select"] span {
+    color: #FFFFFF !important;
+}
+[data-testid="stWidgetLabel"] {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
 }
 
 /* Buttons */
@@ -325,7 +339,7 @@ def build_graph(device_name, root_cause=None, impacted=[], cascade_step=0):
     try:
         topo = requests.get(f"{API}/topology/{device_name}", timeout=10).json()
     except:
-        return "<p style='color:#7A9CC4'>Graph unavailable</p>"
+        return "<p style='color:#FFFFFF'>Graph unavailable</p>"
 
     net = Network(height="420px", width="100%", bgcolor="#0A1628",
                   font_color="#E8EDF5", directed=True)
@@ -425,7 +439,7 @@ st.markdown(f"""
     <span>{api_status}</span>
     <span>{alarm_status}</span>
     <span><span class="status-dot dot-green"></span>NEO4J CONNECTED</span>
-    <span style="margin-left:auto;color:#7A9CC4">GROQ LLM · RANDOM FOREST v1.0</span>
+    <span style="margin-left:auto;color:#FFFFFF">GROQ LLM · RANDOM FOREST v1.0</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -471,7 +485,7 @@ with tab1:
                 return [f"background-color:{c}" for _ in row]
             styled = df[cols].style.apply(color_row, axis=1)
             st.dataframe(styled, use_container_width=True, height=500)
-            st.markdown(f'<div style="font-family:monospace;font-size:11px;color:#7A9CC4;margin-top:8px">Showing {len(df)} of {data["total"]} active alarms</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-family:monospace;font-size:11px;color:#FFFFFF;margin-top:8px">Showing {len(df)} of {data["total"]} active alarms</div>', unsafe_allow_html=True)
         else:
             st.info("No active alarms in feed")
     except Exception as e:
@@ -480,7 +494,7 @@ with tab1:
 # ═══ TAB 2 — AI Simulation Engine ════════════════════════════════════════════
 with tab2:
     st.markdown('<div class="noc-panel-title">AI AUTONOMOUS SIMULATION ENGINE</div>', unsafe_allow_html=True)
-    st.markdown('<div style="font-size:12px;color:#7A9CC4;margin-bottom:16px">Trigger a fault → observe ML prediction → trace root cause → watch cascade propagate in real time</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:12px;color:#FFFFFF;margin-bottom:16px">Trigger a fault → observe ML prediction → trace root cause → watch cascade propagate in real time</div>', unsafe_allow_html=True)
 
     # Control bar
     ctrl = st.container()
@@ -592,7 +606,7 @@ with tab2:
                     </div>
                     <div style="margin-top:12px">
                         <div class="noc-panel-title" style="margin-top:8px">ROOT CAUSE</div>
-                        <div class="rca-root">🔴 {rca.get('root_cause','?')}<br><span style="color:#7A9CC4;font-size:11px">{rca.get('reason','?')}</span></div>
+                        <div class="rca-root">🔴 {rca.get('root_cause','?')}<br><span style="color:#FFFFFF;font-size:11px">{rca.get('reason','?')}</span></div>
                     </div>
                     <div style="margin-top:8px">
                         <div class="rca-path">{'  →  '.join(rca.get('path',{}).get('path_nodes',[]))}</div>
@@ -612,7 +626,7 @@ with tab2:
                     st.markdown(f'<div class="noc-panel-title">AI NOC ANALYSIS</div><div class="llm-box">{expl}</div>', unsafe_allow_html=True)
 
             # Node selector for RCA tab
-            st.markdown('<div style="font-size:11px;color:#7A9CC4;margin-top:8px;font-family:monospace">→ Go to NODE RCA DETAILS tab to inspect any node</div>', unsafe_allow_html=True)
+            st.markdown('<div style="font-size:11px;color:#FFFFFF;margin-top:8px;font-family:monospace">→ Go to NODE RCA DETAILS tab to inspect any node</div>', unsafe_allow_html=True)
 
             st.session_state.sim_step += 1
             if st.session_state.sim_step >= len(steps):
@@ -661,7 +675,7 @@ with tab2:
                 </div>
                 <div style="margin-top:12px">
                     <div class="noc-panel-title" style="margin-top:8px">ROOT CAUSE</div>
-                    <div class="rca-root">🔴 {rca.get('root_cause','?')}<br><span style="color:#7A9CC4;font-size:11px">{rca.get('reason','?')}</span></div>
+                    <div class="rca-root">🔴 {rca.get('root_cause','?')}<br><span style="color:#FFFFFF;font-size:11px">{rca.get('reason','?')}</span></div>
                 </div>
                 <div style="margin-top:8px">
                     <div class="rca-path">{'  →  '.join(rca.get('path',{}).get('path_nodes',[]))}</div>
@@ -686,7 +700,7 @@ with tab2:
                     height:420px;display:flex;align-items:center;justify-content:center;
                     flex-direction:column;gap:12px">
             <div style="font-size:48px">📡</div>
-            <div style="font-family:monospace;color:#7A9CC4;font-size:13px">SELECT DEVICE AND FAULT TYPE</div>
+            <div style="font-family:monospace;color:#FFFFFF;font-size:13px">SELECT DEVICE AND FAULT TYPE</div>
             <div style="font-family:monospace;color:#0057A8;font-size:11px">THEN CLICK ▶ START TO RUN SIMULATION</div>
         </div>
         """, unsafe_allow_html=True)
@@ -714,19 +728,19 @@ with tab3:
                 if topo["upstream"]:
                     st.dataframe(pd.DataFrame(topo["upstream"]), use_container_width=True, hide_index=True)
                 else:
-                    st.markdown('<div style="color:#7A9CC4;font-size:12px;font-family:monospace">No upstream nodes</div>', unsafe_allow_html=True)
+                    st.markdown('<div style="color:#FFFFFF;font-size:12px;font-family:monospace">No upstream nodes</div>', unsafe_allow_html=True)
             with c2:
                 st.markdown('<div class="noc-panel-title">DOWNSTREAM NODES</div>', unsafe_allow_html=True)
                 if topo["downstream"]:
                     st.dataframe(pd.DataFrame(topo["downstream"]), use_container_width=True, hide_index=True)
                 else:
-                    st.markdown('<div style="color:#7A9CC4;font-size:12px;font-family:monospace">No downstream nodes</div>', unsafe_allow_html=True)
+                    st.markdown('<div style="color:#FFFFFF;font-size:12px;font-family:monospace">No downstream nodes</div>', unsafe_allow_html=True)
             with c3:
                 st.markdown('<div class="noc-panel-title">DIRECT NEIGHBOURS</div>', unsafe_allow_html=True)
                 if topo["neighbours"]:
                     st.dataframe(pd.DataFrame(topo["neighbours"]), use_container_width=True, hide_index=True)
                 else:
-                    st.markdown('<div style="color:#7A9CC4;font-size:12px;font-family:monospace">None</div>', unsafe_allow_html=True)
+                    st.markdown('<div style="color:#FFFFFF;font-size:12px;font-family:monospace">None</div>', unsafe_allow_html=True)
 
             st.markdown("<br>",unsafe_allow_html=True)
             st.markdown('<div class="noc-panel-title">BLAST RADIUS ANALYSIS</div>', unsafe_allow_html=True)
@@ -741,7 +755,7 @@ with tab3:
 
             # Save device for RCA tab
             st.session_state.rca_node = t_device
-            st.markdown('<br><div style="font-family:monospace;font-size:11px;color:#7A9CC4">→ Go to NODE RCA DETAILS tab for full AI analysis of any node</div>', unsafe_allow_html=True)
+            st.markdown('<br><div style="font-family:monospace;font-size:11px;color:#FFFFFF">→ Go to NODE RCA DETAILS tab for full AI analysis of any node</div>', unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"Topology error: {e}")
@@ -816,7 +830,7 @@ with tab4:
             <div class="rca-root">
                 <div style="font-size:14px;color:#E3001B;font-weight:600">🔴 {rca.get('root_cause','?')}</div>
                 <div style="margin-top:6px;color:#E8EDF5">{rca.get('root_alarm','?')} on {rca.get('root_type','?')}</div>
-                <div style="margin-top:4px;color:#7A9CC4;font-size:11px">{rca.get('reason','?')}</div>
+                <div style="margin-top:4px;color:#FFFFFF;font-size:11px">{rca.get('reason','?')}</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -875,7 +889,7 @@ with tab4:
         <div style="background:#0D1F3C;border:1px solid #1B3A5C;border-radius:2px;
                     padding:40px;text-align:center;margin-top:20px">
             <div style="font-size:36px">🧠</div>
-            <div style="font-family:monospace;color:#7A9CC4;font-size:13px;margin-top:12px">
+            <div style="font-family:monospace;color:#FFFFFF;font-size:13px;margin-top:12px">
                 SELECT A NODE AND CLICK RUN FULL RCA
             </div>
             <div style="font-family:monospace;color:#0057A8;font-size:11px;margin-top:8px">
