@@ -1,0 +1,15 @@
+pandas
+numpy
+scikit-learn
+fastapi
+uvicorn
+neo4j
+python-dotenv
+pydantic
+joblib
+streamlit
+requests
+matplotlib
+seaborn
+pytest
+anthropic>=0.40.0

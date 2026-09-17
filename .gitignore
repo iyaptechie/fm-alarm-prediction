@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.env
+.pytest_cache/
+ml/model_registry/*.pkl
+ml/model_registry/*.joblib
+data/alarms/generated_alarms.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+*.swp
