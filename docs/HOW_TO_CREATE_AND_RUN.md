@@ -1,263 +1,211 @@
 # How to Create and Run the Project
 
-## 1. Create the GitHub repository
+This guide reflects the current project structure and execution flow in the repo.
 
-Create a new GitHub repository named:
+---
 
-`fm-alarm-prediction`
+## 1. Clone or create the repository
 
-Recommended settings:
+Create a repo named `fm-alarm-prediction` and add the project files to it.
 
-- Public or Private: your choice
-- Add README: No
-- Add .gitignore: No
-- License: optional
+If you are working inside GitHub Codespaces, this will already be available in your workspace.
 
-Then upload this complete folder to the repository.
+---
 
-## 2. Open GitHub Codespaces
-
-Open the repository in GitHub and choose:
-
-Code → Codespaces → Create codespace on main
-
-The repository will open in a browser-based VS Code environment.
-
-## 3. Create Python environment
-
-In the Codespace terminal:
+## 2. Create the Python environment
 
 ```bash
 python --version
 python -m venv .venv
-```
-
-Activate it:
-
-```bash
 source .venv/bin/activate
-```
-
-Install packages:
-
-```bash
 pip install -r requirements.txt
+cp .env.example .env
 ```
 
-## 4. Start with synthetic data
+The repo expects environment variables for Neo4j and LLM access.
 
-The first coding target is:
+---
 
-```text
-data/inventory/
-    sites.csv
-    nodes.csv
-    cells.csv
-    links.csv
+## 3. Configure environment variables
 
-data/alarms/
-    historical_alarms.csv
+Update `.env` with your runtime values.
+
+Example structure:
+
+```dotenv
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=password123
+GROQ_API_KEY=your_groq_key
 ```
 
-Do not start with LLM or Agentic AI.
+If the LLM layer is not being used, the RCA explanation step can be skipped, but the app expects the key to be configured when calling `llm/rca_explainer.py`.
 
-First make the ML + Graph DB pipeline work.
+---
 
-## 5. Run the alarm generator
-
-Later, implement:
-
-```bash
-python ingestion/alarm_generator.py
-```
-
-Expected result:
-
-`data/alarms/generated_alarms.csv`
-
-## 6. Start Neo4j
-
-Docker is recommended.
+## 4. Start Neo4j
 
 ```bash
 docker compose up -d neo4j
 ```
 
-Then open the Neo4j browser exposed by the compose configuration.
-
-## 7. Load network inventory
-
-Implement:
-
-```bash
-python graph/neo4j_loader.py
-```
-
-The graph should represent:
+Then open the browser UI at:
 
 ```text
-SITE
-  |
-  └── GNB
-       |
-       ├── CU
-       |
-       └── DU
-            |
-            ├── CELL
-            ├── CELL
-            └── CELL
+http://localhost:7474
 ```
 
-and transport connectivity:
+Credentials:
 
 ```text
-DU → ROUTER
-CU → ROUTER
+username: neo4j
+password: password123
 ```
 
-## 8. Train the first ML model
+---
 
-Implement:
+## 5. Load the inventory and alarms
 
 ```bash
-python ml/train.py
+make inventory
+make alarms
 ```
 
-The first target should be:
+This reads the CSV data in `data/inventory/` and the alarm records in `data/alarms/alarms.csv` for downstream analysis.
 
-`cell_down_next_10min`
+---
 
-Start with Random Forest.
-
-Do not start with deep learning.
-
-## 9. Run prediction
-
-Implement:
+## 6. Train the prediction model
 
 ```bash
-python ml/predict.py
+make train
 ```
 
-Example target output:
+This runs:
+- feature engineering
+- ML training
+- model evaluation
+
+The model is saved in `ml/model_registry/` and used by `ml/predict.py`.
+
+---
+
+## 7. Run the API
+
+```bash
+make api
+```
+
+This starts the FastAPI app on:
 
 ```text
-CELL001
-Prediction: CELL_DOWN
-Probability: 0.91
-Risk: HIGH
+http://localhost:8000
 ```
 
-## 10. Add Graph-based RCA
-
-After prediction works, query Neo4j to find:
-
-- upstream nodes
-- downstream nodes
-- connected transport nodes
-- alarms on dependent resources
-- potentially impacted cells
-
-Example:
+Main routes:
 
 ```text
-CELL001
-   ↓
-DU001
-   ↓
-GNB001
-   ↓
-RTR001
-```
-
-## 11. Add the alarm ingestion API
-
-Use FastAPI.
-
-Run:
-
-```bash
-uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+GET /health
+GET /alarms
+GET /predict/{device_name}
+GET /rca/{device_name}
+GET /topology/{device_name}
+GET /impact/{device_name}
+POST /alarms
 ```
 
 Example request:
 
-```json
-{
-  "node_id": "DU001",
-  "alarm_type": "PTP_SYNC_LOSS",
-  "severity": "CRITICAL"
-}
+```bash
+curl http://localhost:8000/predict/BLR-ACC01-HW01
+curl http://localhost:8000/rca/BLR-ACC01-HW01
 ```
 
-## 12. Final target
+---
 
-The end-to-end solution should eventually work like:
+## 8. Run the dashboard
+
+```bash
+make dashboard
+```
+
+Then open:
 
 ```text
-Alarm Injection
-      ↓
-Alarm API
-      ↓
-Feature Engineering
-      ↓
-ML Prediction
-      ↓
-Neo4j Topology
-      ↓
-RCA / Impact Analysis
-      ↓
-Prediction + Explanation
+http://localhost:8501
 ```
 
-Example:
+The dashboard calls the API and displays alarm state, risk, RCA, and impact information.
+
+---
+
+## 9. Run tests
+
+```bash
+make test
+```
+
+---
+
+## Current project flow
 
 ```text
-Predicted Event: CELL_DOWN
-Probability: 91%
-Risk: HIGH
-
-Possible Root Cause:
-RTR001 LINK_DOWN
-
-Potential Impact:
-CELL001
-CELL002
-CELL003
+Inventory CSVs
+   ↓
+Alarm dataset
+   ↓
+API loads alarms and recent device history
+   ↓
+ML prediction computes device fault probability
+   ↓
+Graph queries find upstream/downstream topology
+   ↓
+RCA logic selects likely root cause from active critical alarms
+   ↓
+Impact analysis estimates blast radius
+   ↓
+LLM explains the issue in plain English
+   ↓
+Dashboard presents the operational view
 ```
 
-## Suggested implementation order
+---
 
-### Phase 1
-GitHub + Codespaces + Python
+## Likely user scenario
 
-### Phase 2
-Synthetic inventory
+A telecom operator can:
 
-### Phase 3
-Neo4j topology
+1. see active alarms in the dashboard or API
+2. query a device by name
+3. run prediction to estimate fault probability
+4. inspect the dependency path to identify upstream causes
+5. review impacted downstream devices
+6. read the LLM-generated RCA explanation for next steps
 
-### Phase 4
-Synthetic alarms
+---
 
-### Phase 5
-Alarm ingestion
+## Useful commands summary
 
-### Phase 6
-ML feature engineering
+```bash
+make help
+make setup
+make neo4j
+make inventory
+make alarms
+make train
+make api
+make dashboard
+make test
+```
 
-### Phase 7
-Random Forest prediction
+---
 
-### Phase 8
-Graph RCA
+## Notes
 
-### Phase 9
-FastAPI
+- This project is based on synthetic telecom data for demonstration and learning.
+- The graph, ML, RCA, and LLM layers are designed to work together, but each layer can also be validated independently.
+- The LLM explanation layer is not a replacement for deterministic prediction and RCA logic; it adds human-readable context on top of the actual analysis pipeline.
 
-### Phase 10
-Dashboard
 
 ### Phase 11
 LLM / Agentic AI
