@@ -44,7 +44,7 @@ In 4-5 sentences explain to a NOC operator:
 Keep it clear, concise and actionable."""
 
     response = get_client().chat.completions.create(
-        model="groq/compound",
+        model="openai/gpt-oss-120b",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=300,
     )
